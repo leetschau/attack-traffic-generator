@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cp /vagrant/data/$beacon_file .
+chmod 755 $beacon_file
+nohup ./$beacon_file 1> /tmp/beacon.out 2> /tmp/beacon.err &
+echo "beacon started!"

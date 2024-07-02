@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+
+import argparse
+import yaml
+from string import Template
+from pathlib import Path
+
+parser = argparse.ArgumentParser(description='Generate script from template and configurations')
+parser.add_argument('template_path')
+parser.add_argument('conf_path')
+args = parser.parse_args()
+
+script = Template(Path(args.template_path).read_text())
+kv = yaml.safe_load(Path(args.conf_path).read_text())
+
+print(script.safe_substitute(kv))
+
