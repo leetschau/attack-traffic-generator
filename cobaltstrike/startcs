@@ -1,0 +1,16 @@
+#!/bin/bash
+
+vagrant destroy -f
+# vagrant destroy -f victim
+rm -rf data; mkdir data
+
+../script_generator attacker_provision.templ range.yml > data/attacker_provision
+../script_generator victim_provision.ps1.templ range.yml > data/victim_provision.ps1
+echo Provision scripts generated!
+
+vagrant up
+# vagrant up victim
+# sleep 2
+# vagrant ssh attacker -c 'tmux send -t collector:0 "shell" ENTER'
+# vagrant ssh attacker -c 'tmux send -t collector:0 "bash /vagrant/c2commands" ENTER'
+# echo C2 commands executed!

