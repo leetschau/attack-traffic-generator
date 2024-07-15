@@ -22,6 +22,10 @@ on beacon_initial {
 on beacon_checkin {
   println(formatDate("yyyy.MM.dd HH:mm:ss z") . " Beacon checkin!");
 }
+
+on * {
+   println("[ $+ $1 $+ ]: " . subarray(@_, 1));
+}
 EOF
 
 # tmux new-window -t collector -n listener './agscript $ts_host 50050 neo $ts_password /tmp/listener.cna &> /tmp/listener.log'
