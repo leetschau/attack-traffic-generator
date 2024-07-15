@@ -1,6 +1,3 @@
-Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
-Remove-WindowsFeature Windows-Defender, Windows-Defender-GUI
-Set-MpPreference -DisableRealtimeMonitoring $true
-Copy-Item C:\vagrant\data\$beacon_file C:\
-Start-Process C:\$beacon_file -WindowStyle Hidden
-Write-Host "Beacon started!"
+Copy-Item C:\vagrant\data\$beacon_file ~\Documents\
+Start-Process ~\Documents\$beacon_file -WindowStyle Hidden
+Write-Output "Beacon started!"
