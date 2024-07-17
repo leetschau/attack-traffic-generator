@@ -1,7 +1,6 @@
 #!/bin/bash
 
 vagrant destroy -f
-# vagrant destroy -f victim
 rm -rf data; mkdir data
 
 ../script_generator attacker_provision.templ range.yml > data/attacker_provision
@@ -9,8 +8,6 @@ rm -rf data; mkdir data
 echo Provision scripts generated!
 
 vagrant up
-# vagrant up victim
-# sleep 2
-# vagrant ssh attacker -c 'tmux send -t collector:0 "shell" ENTER'
-# vagrant ssh attacker -c 'tmux send -t collector:0 "bash /vagrant/c2commands" ENTER'
-# echo C2 commands executed!
+sleep 20
+vagrant ssh attacker -c 'tmux new-window -t collector -n commands "cd Cobaltstrike-4.4 && ./agscript 192.168.56.33 50050 black 456321 /vagrant/commands.cna"'
+echo C2 commands executed!

