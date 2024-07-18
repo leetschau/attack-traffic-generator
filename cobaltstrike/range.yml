@@ -7,7 +7,7 @@ ts_password: 456321
 beacon_format: exe
 listener_name: rhttp
 beacon_file: beacon.exe
-victim_host: 192.168.56.44
+victim_host: 192.168.56.0/24
 packet_cnt: 3000
 pcap_file_name: rec.pcap
 server_nic: eth1
