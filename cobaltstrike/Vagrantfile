@@ -10,6 +10,7 @@ Vagrant.configure("2") do |config|
     apt-get install -y squid
     echo -e "http_access allow localhost\nhttp_access allow localnet\nhttp_access deny all" > /etc/squid/conf.d/lan.conf
     systemctl restart squid.service
+    timedatectl set-timezone Asia/Shanghai
     SHELL
     attacker.vm.provision "team-server", type: "shell", path: "data/attacker_provision", privileged: false
   end
