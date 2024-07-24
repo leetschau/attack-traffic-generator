@@ -1,17 +1,43 @@
 #!/usr/bin/env python3
 
-import argparse
+import sys
 import yaml
-from string import Template
+import shutil
+import argparse
 from pathlib import Path
+from subprocess import run
+from string import Template
 
-parser = argparse.ArgumentParser(description='Generate script from template and configurations')
-parser.add_argument('template_path')
-parser.add_argument('conf_path')
+parser = argparse.ArgumentParser(description='Generate script from range configurations and templates')
+parser.add_argument('-c', '--conf', default='range.yml', help='default: range.yml')
+parser.add_argument('-t', '--template-path', default='./templates', help='default: ./templates')
+parser.add_argument('-r', '--run', action='store_true', help='up runnning the range with `vagrant up`')
 args = parser.parse_args()
 
-script = Template(Path(args.template_path).read_text())
-kv = yaml.safe_load(Path(args.conf_path).read_text())
 
-print(script.safe_substitute(kv))
+kv = yaml.safe_load(Path(args.conf).read_text())
+output_dir = Path(kv['range_root'])
+
+print(f'\nClear environment in folder {output_dir} ...\n')
+run(['vagrant', 'destroy', '-f'], cwd=output_dir, check=True)
+shutil.rmtree(output_dir, ignore_errors=True)
+output_dir.mkdir()
+
+print(f'\nGenerating scripts according to {args.conf} ...\n')
+for template in Path(args.template_path).iterdir():
+    if (template.is_dir() or template.suffix == '.md'):
+        continue
+    outfile = output_dir / template.name
+    print(f'Writing file {template} to {outfile}')
+    script = Template(template.read_text())
+    outfile.write_text(script.safe_substitute(kv))
+
+if not args.run:
+    print(f'\nUp running the range with:\ncd {output_dir}\n./startrange')
+    sys.exit(0)
+
+print('\nBuilding range ...\n')
+run(['vagrant', 'up'], cwd=output_dir, check=True)
+
+print('\nExecuting C2 commands ...\n')
 

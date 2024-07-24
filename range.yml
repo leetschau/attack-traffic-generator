@@ -1,0 +1,64 @@
+range_root: ./autorange
+pcap_file: traffic.pcap
+packet_cnt: 5000
+log_path: /tmp/autorange
+
+attacker:
+  ip: 192.168.56.33
+  nic: eth1
+  team_server_port: 4444
+  listener_port:
+    msf:
+      rtcp: 7101
+      rhttp: 7102
+      rhttps: 7103
+    cobaltstrike:
+      rhttp: 7202
+      rhttps: 7103
+
+benign:
+  ip: 192.168.56.51
+  platform: linux
+  arch: x64
+
+victim:
+  vm1:
+    ip: 192.168.56.41
+    ctype: msf
+    payload: linux/x64/meterpreter_reverse_tcp
+    platform: linux
+    arch: x64
+    beacon_format: elf
+    beacon_file: msf_rtcp.exe
+  vm2:
+    ip: 192.168.56.42
+    ctype: msf
+    payload: linux/x64/meterpreter_reverse_http
+    platform: linux
+    arch: x64
+    beacon_format: elf
+    beacon_file: msf_rhttp.exe
+  vm3:
+    ip: 192.168.56.43
+    ctype: msf
+    payload: linux/x64/meterpreter_reverse_https
+    platform: linux
+    arch: x64
+    beacon_format: elf
+    beacon_file: msf_rhttps.exe
+  vm4:
+    ip: 192.168.56.44
+    ctype: cobaltstrike
+    payload: windows/beacon_http/reverse_http
+    platform: windows
+    arch: x64
+    beacon_format: exe
+    beacon_file: cs_rhttp.exe
+  vm5:
+    ip: 192.168.56.45
+    ctype: cobaltstrike
+    payload: windows/beacon_https/reverse_https
+    platform: windows
+    arch: x64
+    beacon_format: exe
+    beacon_file: cs_rhttps.exe
