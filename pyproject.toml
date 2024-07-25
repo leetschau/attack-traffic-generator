@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "c2-traffic-analyzer"
+version = "0.1.0"
+description = "Generate and analyze C2 traffic between MSF, CS, etc and beacons"
+authors = ["Leo <leetschau@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+Jinja2 = "^3.1.4"
+pyyaml = "^6.0.1"
+
+[tool.poetry.group.dev.dependencies]
+ipython = "^8.26.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

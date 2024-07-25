@@ -1,20 +1,25 @@
 range_root: ./autorange
+range_net: 192.168.56.0/24
 pcap_file: traffic.pcap
 packet_cnt: 5000
-log_path: /tmp/autorange
 
 attacker:
   ip: 192.168.56.33
   nic: eth1
   team_server_port: 4444
-  listener_port:
+  team_server_pwd: 456321
+  listener:
     msf:
-      rtcp: 7101
-      rhttp: 7102
-      rhttps: 7103
+      rtcp_port: 7101
+      rhttp_port: 7102
+      rhttps_port: 7103
     cobaltstrike:
-      rhttp: 7202
-      rhttps: 7103
+      rhttp:
+        name: listner_rhttp
+        port: 7202
+      rhttps:
+        name: listner_rhttps
+        port: 7103
 
 benign:
   ip: 192.168.56.51
