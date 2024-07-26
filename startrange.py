@@ -13,13 +13,13 @@ parser.add_argument('-r', '--run', action='store_true', help='up runnning the ra
 args = parser.parse_args()
 
 kv = yaml.safe_load(Path(args.conf).read_text())
-output_dir = Path(kv['range_root'])
+range_dir = Path(kv['range_root'])
 
-print(f'\nClear environment in folder {output_dir} ...\n')
-if (output_dir / 'Vagrantfile').exists():
-    run(['vagrant', 'destroy', '-f'], cwd=output_dir, check=True)
-shutil.rmtree(output_dir, ignore_errors=True)
-output_dir.mkdir()
+print(f'\nClear environment in folder {range_dir} ...\n')
+if (range_dir / 'Vagrantfile').exists():
+    run(['vagrant', 'destroy', '-f'], cwd=range_dir, check=True)
+shutil.rmtree(range_dir, ignore_errors=True)
+range_dir.mkdir()
 
 print(f'\nGenerating scripts according to {args.conf} ...\n')
 env = Environment(loader=FileSystemLoader(args.template_path))
@@ -27,16 +27,21 @@ for tf in Path(args.template_path).iterdir():
     if (tf.is_dir() or tf.suffix == '.md'):
         continue
     template = env.get_template(tf.name)
-    outfile = output_dir / tf.name
+    outfile = range_dir / tf.name
     print(f'Generating script {outfile} based on {tf.name} ...')
     outfile.write_text(template.render(kv))
 
+dep_path = kv['dependencies']['path']
+for fn in Path(dep_path).iterdir():
+    print(f'Copy {fn.name} to {range_dir} ...')
+    shutil.copy(fn, range_dir / fn.name)
+
 if not args.run:
-    print(f'\nUp running the range with:\ncd {output_dir}\n./startrange')
+    print(f'\nUp running the range with:\ncd {range_dir}\n./startrange')
     sys.exit(0)
 
 print('\nBuilding range ...\n')
-run(['vagrant', 'up'], cwd=output_dir, check=True)
+run(['vagrant', 'up'], cwd=range_dir, check=True)
 
 print('\nExecuting C2 commands ...\n')
 # vagrant ssh attacker -c 'tmux new-window -t collector -n commands "cd Cobaltstrike-4.4 && ./agscript 192.168.56.33 50050 black 456321 /vagrant/commands.cna"'

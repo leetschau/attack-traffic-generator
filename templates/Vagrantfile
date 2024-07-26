@@ -12,48 +12,48 @@ Vagrant.configure("2") do |config|
     systemctl restart squid.service
     timedatectl set-timezone Asia/Shanghai
     SHELL
-    attacker.vm.provision "msf-server", type: "shell", path: "{{ range_root }}/msf.sh", privileged: false
-    attacker.vm.provision "cs-server", type: "shell", path: "{{ range_root }}/cs.sh", privileged: false
+    attacker.vm.provision "msf-servers", type: "shell", path: "./msf.sh", privileged: false
+    attacker.vm.provision "cs-servers", type: "shell", path: "./cs.sh", privileged: false
   end
 
   config.vm.define "vm1" do |vm1|
     vm1.vm.box = "ubuntu/trusty64"
     vm1.vm.network "private_network", ip: "{{ victim['vm1']['ip']}}"
-    vm1.vm.provision "vm1", type: "shell", path: "{{ range_root }}/vm1.sh", privileged: false
+    vm1.vm.provision "vm1", type: "shell", path: "./beacon.sh", args: "{{ victim['vm1']['beacon_file'] }}", privileged: false
   end
 
   config.vm.define "vm2" do |vm2|
     vm2.vm.box = "ubuntu/trusty64"
     vm2.vm.network "private_network", ip: "{{ victim['vm2']['ip']}}"
-    vm2.vm.provision "vm2", type: "shell", path: "{{ range_root }}/vm2.sh", privileged: false
+    vm2.vm.provision "vm2", type: "shell", path: "./beacon.sh", args: "{{ victim['vm2']['beacon_file'] }}", privileged: false
   end
 
   config.vm.define "vm3" do |vm3|
     vm3.vm.box = "ubuntu/trusty64"
     vm3.vm.network "private_network", ip: "{{ victim['vm3']['ip']}}"
-    vm3.vm.provision "vm3", type: "shell", path: "{{ range_root }}/vm3.sh", privileged: false
+    vm3.vm.provision "vm3", type: "shell", path: "./beacon.sh", args: "{{ victim['vm3']['beacon_file'] }}",  privileged: false
   end
 
-  config.vs.define "vm4" do |vm4|
+  config.vm.define "vm4" do |vm4|
     vm4.vm.box = "stegru/win10-build"
     vm4.vm.network "private_network", ip: "{{ victim['vm4']['ip']}}"
     vm4.vm.guest = :windows
     vm4.vm.communicator = "winrm"
-    vm4.vm.provision "vm4", type: "shell", path: "{{ range_root }}/vm4.ps1", privileged: true
+    vm4.vm.provision "vm4", type: "shell", path: "./beacon.ps1", args: "{{ victim['vm4']['beacon_file'] }}",  privileged: true
   end
 
-  config.vs.define "vm5" do |vm5|
+  config.vm.define "vm5" do |vm5|
     vm5.vm.box = "stegru/win10-build"
     vm5.vm.network "private_network", ip: "{{ victim['vm5']['ip']}}"
     vm5.vm.guest = :windows
     vm5.vm.communicator = "winrm"
-    vm5.vm.provision "vm5", type: "shell", path: "{{ range_root }}/vm5.ps1", privileged: true
+    vm5.vm.provision "vm5", type: "shell", path: "./beacon.ps1", args: "{{ victim['vm5']['beacon_file'] }}",  privileged: true
   end
 
   config.vm.define "benign" do |benign|
     benign.vm.box = "ubuntu/trusty64"
     benign.vm.network "private_network", ip: "{{ benign['ip']}}"
-    benign.vm.provision "benign", type: "shell", path: "{{ range_root }}/benign.sh", privileged: false
+    benign.vm.provision "benign", type: "shell", path: "./benign.sh", privileged: false
   end
 end
 
