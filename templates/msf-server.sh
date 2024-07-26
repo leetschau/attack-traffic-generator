@@ -24,7 +24,7 @@ set LPORT {{ attacker['listener']['msf']['rtcp_port'] }}
 exploit
 EOF
 
-nohup msfconsole -r $fn1.rc &> $fn1.log &
+tmux new-session -d -s vm1 -n listener 'msfconsole -r $fn1.rc'
 
 # vim2: reverse http on MSF
 
@@ -39,7 +39,7 @@ set LPORT {{ attacker['listener']['msf']['rhttp_port'] }}
 exploit
 EOF
 
-nohup msfconsole -r $fn2.rc &> $fn2.log &
+tmux new-session -d -s vm2 -n listener 'msfconsole -r $fn2.rc'
 
 # vim3: reverse https on MSF
 
@@ -54,5 +54,6 @@ set LPORT {{ attacker['listener']['msf']['rhttps_port'] }}
 exploit
 EOF
 
-nohup msfconsole -r $fn3.rc &> $fn3.log &
+tmux new-session -d -s vm3 -n listener 'msfconsole -r $fn3.rc'
+
 echo -e "\nMSF provision completed!\n"

@@ -9,7 +9,7 @@ dependencies:
 attacker:
   ip: 192.168.56.33
   nic: eth1
-  team_server_port: 4444
+  team_server_port: 50050
   team_server_pwd: 456321
   listener:
     msf:
@@ -22,7 +22,7 @@ attacker:
         port: 7202
       rhttps:
         name: listner_rhttps
-        port: 7103
+        port: 7203
 
 benign:
   ip: 192.168.56.51
