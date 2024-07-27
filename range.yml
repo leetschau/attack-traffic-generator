@@ -9,20 +9,28 @@ dependencies:
 attacker:
   ip: 192.168.56.33
   nic: eth1
-  team_server_port: 50050
-  team_server_pwd: 456321
-  listener:
-    msf:
-      rtcp_port: 7101
-      rhttp_port: 7102
-      rhttps_port: 7103
-    cobaltstrike:
-      rhttp:
-        name: listner_rhttp
-        port: 7202
-      rhttps:
-        name: listner_rhttps
-        port: 7203
+  msf:
+    listener:
+      meterpreter_reverse_tcp:
+        port: &mrt 7101
+      meterpreter_reverse_http:
+        port: &mrh 7102
+      meterpreter_reverse_https:
+        port: &mrs 7103
+  cobaltstrike:
+    folder_name: Cobaltstrike-4.4
+    team_server:
+      port: 50050
+      password: 456321
+    listener:
+      reverse_http:
+        port: &crh 7202
+      reverse_https:
+        port: &crs 7203
+      heartbeat:
+        interval:
+          min: 3
+          max: 10
 
 benign:
   ip: 192.168.56.51
@@ -38,6 +46,7 @@ victim:
     arch: x64
     beacon_format: elf
     beacon_file: msf_rtcp.exe
+    listener_port: *mrt
   vm2:
     ip: 192.168.56.42
     ctype: msf
@@ -46,6 +55,7 @@ victim:
     arch: x64
     beacon_format: elf
     beacon_file: msf_rhttp.exe
+    listener_port: *mrh
   vm3:
     ip: 192.168.56.43
     ctype: msf
@@ -54,6 +64,7 @@ victim:
     arch: x64
     beacon_format: elf
     beacon_file: msf_rhttps.exe
+    listener_port: *mrs
   vm4:
     ip: 192.168.56.44
     ctype: cobaltstrike
@@ -62,6 +73,7 @@ victim:
     arch: x64
     beacon_format: exe
     beacon_file: cs_rhttp.exe
+    listener_port: *crh
   vm5:
     ip: 192.168.56.45
     ctype: cobaltstrike
@@ -70,3 +82,4 @@ victim:
     arch: x64
     beacon_format: exe
     beacon_file: cs_rhttps.exe
+    listener_port: *crs

@@ -44,4 +44,4 @@ print('\nBuilding range ...\n')
 run(['vagrant', 'up'], cwd=range_dir, check=True)
 
 print('\nExecuting C2 commands ...\n')
-# vagrant ssh attacker -c 'tmux new-window -t collector -n commands "cd Cobaltstrike-4.4 && ./agscript 192.168.56.33 50050 black 456321 /vagrant/commands.cna"'
+run(['bash', 'c2commands.sh'], cwd=range_dir, check=True)

@@ -128,6 +128,26 @@ MarkupSafe = ">=2.0"
 i18n = ["Babel (>=2.7)"]
 
 [[package]]
+name = "jinja2-cli"
+version = "0.8.2"
+description = "A CLI interface to Jinja2"
+optional = false
+python-versions = "*"
+files = [
+    {file = "jinja2-cli-0.8.2.tar.gz", hash = "sha256:a16bb1454111128e206f568c95938cdef5b5a139929378f72bb8cf6179e18e50"},
+    {file = "jinja2_cli-0.8.2-py2.py3-none-any.whl", hash = "sha256:b91715c79496beaddad790171e7258a87db21c1a0b6d2b15bca3ba44b74aac5d"},
+]
+
+[package.dependencies]
+jinja2 = "*"
+
+[package.extras]
+tests = ["flake8", "jinja2", "pytest"]
+toml = ["jinja2", "toml"]
+xml = ["jinja2", "xmltodict"]
+yaml = ["jinja2", "pyyaml"]
+
+[[package]]
 name = "markupsafe"
 version = "2.1.5"
 description = "Safely add untrusted strings to HTML/XML markup."
@@ -422,4 +442,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "3f17dbc05979189757fe59ac240af3fb7ccd497f4072c2ea4511217658afeedc"
+content-hash = "158a2ad587816e4dcf0437a460c2d861082a54ecefa1c60ef0073615383c7492"

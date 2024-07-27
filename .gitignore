@@ -2,3 +2,4 @@ data/
 .vagrant/
 *.pcap
 .venv/
+autorange/

