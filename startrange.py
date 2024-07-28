@@ -15,13 +15,13 @@ args = parser.parse_args()
 kv = yaml.safe_load(Path(args.conf).read_text())
 range_dir = Path(kv['range_root'])
 
-print(f'\nClear environment in folder {range_dir} ...\n')
+print(f'\n\nClear environment in folder {range_dir} ...\n')
 if (range_dir / 'Vagrantfile').exists():
     run(['vagrant', 'destroy', '-f'], cwd=range_dir, check=True)
 shutil.rmtree(range_dir, ignore_errors=True)
 range_dir.mkdir()
 
-print(f'\nGenerating scripts according to {args.conf} ...\n')
+print(f'\n\nGenerating scripts according to {args.conf} ...\n')
 env = Environment(loader=FileSystemLoader(args.template_path))
 for tf in Path(args.template_path).iterdir():
     if (tf.is_dir() or tf.suffix == '.md'):
@@ -40,8 +40,8 @@ if not args.run:
     print(f'\nUp running the range with:\ncd {range_dir}\n./startrange')
     sys.exit(0)
 
-print('\nBuilding range ...\n')
+print('\n\nBuilding range ...\n')
 run(['vagrant', 'up'], cwd=range_dir, check=True)
 
-print('\nExecuting C2 commands ...\n')
+print('\n\nExecuting C2 commands ...\n')
 run(['bash', 'c2commands.sh'], cwd=range_dir, check=True)

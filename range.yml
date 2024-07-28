@@ -1,7 +1,7 @@
 range_root: autorange
 range_net: 192.168.56.0/24
 pcap_file: traffic.pcap
-packet_cnt: 5000
+packet_cnt: 10000
 dependencies:
   path: data
   cs_installer: cobaltstrike-4.4.zip
@@ -36,6 +36,12 @@ benign:
   ip: 192.168.56.51
   platform: linux
   arch: x64
+  url_generator: https://www.hao123.com  # URL from where random browsed URL list collected
+  url_number: 2  # how many URLs will be browsed
+  proxy: http://192.168.56.33:3128
+  pause_interval:  # unit: second
+    min: 5
+    max: 30
 
 victim:
   vm1:
