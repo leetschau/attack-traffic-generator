@@ -1,5 +1,6 @@
 data/
+autorange/
+.venv/
 .vagrant/
 *.pcap
-.venv/
-autorange/
+*.pdf
