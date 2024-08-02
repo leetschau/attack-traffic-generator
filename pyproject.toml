@@ -21,6 +21,8 @@ dev = [
   "polars>=1.3.0",
   "pandas",
   "matplotlib",
+  "zat",
+  "pyarrow",
 ]
 
 [project.urls]

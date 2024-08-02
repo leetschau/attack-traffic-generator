@@ -8,6 +8,10 @@
 
 asttokens==2.4.1
     # via stack-data
+certifi==2024.7.4
+    # via requests
+charset-normalizer==3.3.2
+    # via requests
 contourpy==1.2.1
     # via matplotlib
 cycler==0.12.1
@@ -18,12 +22,16 @@ executing==2.0.1
     # via stack-data
 fonttools==4.53.1
     # via matplotlib
+idna==3.7
+    # via requests
 ipython==8.26.0
     # via c2-traffic-analyzer (pyproject.toml)
 jedi==0.19.1
     # via ipython
 jinja2==3.1.4
     # via c2-traffic-analyzer (pyproject.toml)
+joblib==1.4.2
+    # via scikit-learn
 kiwisolver==1.4.5
     # via matplotlib
 markupsafe==2.1.5
@@ -37,10 +45,15 @@ numpy==2.0.1
     #   contourpy
     #   matplotlib
     #   pandas
+    #   pyarrow
+    #   scikit-learn
+    #   scipy
 packaging==24.1
     # via matplotlib
 pandas==2.2.2
-    # via c2-traffic-analyzer (pyproject.toml)
+    # via
+    #   c2-traffic-analyzer (pyproject.toml)
+    #   zat
 parso==0.8.4
     # via jedi
 pexpect==4.9.0
@@ -55,6 +68,8 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.3
     # via stack-data
+pyarrow==17.0.0
+    # via c2-traffic-analyzer (pyproject.toml)
 pygments==2.18.0
     # via ipython
 pyparsing==3.1.2
@@ -67,12 +82,20 @@ pytz==2024.1
     # via pandas
 pyyaml==6.0.1
     # via c2-traffic-analyzer (pyproject.toml)
+requests==2.32.3
+    # via zat
+scikit-learn==1.5.1
+    # via zat
+scipy==1.14.0
+    # via scikit-learn
 six==1.16.0
     # via
     #   asttokens
     #   python-dateutil
 stack-data==0.6.3
     # via ipython
+threadpoolctl==3.5.0
+    # via scikit-learn
 traitlets==5.14.3
     # via
     #   ipython
@@ -81,5 +104,11 @@ typing-extensions==4.12.2
     # via ipython
 tzdata==2024.1
     # via pandas
+urllib3==2.2.2
+    # via requests
+watchdog==4.0.1
+    # via zat
 wcwidth==0.2.13
     # via prompt-toolkit
+zat==0.4.7
+    # via c2-traffic-analyzer (pyproject.toml)
