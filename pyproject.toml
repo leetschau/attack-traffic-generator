@@ -1,29 +1,33 @@
-[tool.poetry]
+[project]
 name = "c2-traffic-analyzer"
+description = "Default template for PDM package"
+authors = [
+  {name = "Leo", email = "leetschau@gmail.com"},
+]
+
 version = "0.1.0"
-description = "Generate and analyze C2 traffic between MSF, CS, etc and beacons"
-authors = ["Leo <leetschau@gmail.com>"]
-license = "MIT"
 readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
 
-[tool.poetry.dependencies]
-python = "^3.11"
-Jinja2 = "^3.1.4"
-pyyaml = "^6.0.1"
+dependencies = [
+  "Jinja2>=3.1.4",
+  "PyYaml>=6.0.1",
+]
 
-[tool.poetry.group.dev.dependencies]
-ipython = "^8.26.0"
-jinja2-cli = "^0.8.2"
-scapy = "^2.5.0"
-matplotlib = "^3.9.1"
-cryptography = "^42.0.8"
-pyx = "^0.16"
+[project.optional-dependencies]
+dev = [
+  "ipython",
+  "polars>=1.3.0",
+  "pandas",
+  "matplotlib",
+]
 
-[[tool.poetry.source]]
-name = "aliyun"
-url = "https://mirrors.aliyun.com/pypi/simple/"
-priority = "primary"
+[project.urls]
+Repository = "https://github.com/leetschau/attack-traffic-generator"
+# Homepage = "https://example.com"
+# Documentation = "https://readthedocs.org"
+# Changelog = "https://github.com/leetschau/myproejct/blob/master/CHANGELOG.md"
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[project.scripts]
+tranalyzer = "c2_traffic_analyzer.app:main"

@@ -1,7 +1,7 @@
 range_root: autorange
 range_net: 192.168.56.0/24
 pcap_file: traffic.pcap
-packet_cnt: 10000
+packet_cnt: 100000
 dependencies:
   path: data
   cs_installer: cobaltstrike-4.4.zip

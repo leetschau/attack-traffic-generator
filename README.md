@@ -3,12 +3,10 @@
 Generate attack traffic automatically with specified parameters
 between beacon and team server of Metasploit framework and Cobalt Strike.
 
-## Prerequisites
-
-[Podman](https://podman.io/) is used to provision external dependencies.
+## Range Setup and traffic generation
 
 Virtualbox and [vagrant](https://github.com/hashicorp/vagrant) is used for
-range setup and traffic generation.
+range setup and traffic collection.
 
 By running `vagrant up`, vagrant pull the following boxes automatically:
 
@@ -16,21 +14,37 @@ By running `vagrant up`, vagrant pull the following boxes automatically:
 * ubuntu/trusty64:20191107.0.0
 * stegru/win10-build:1.8.7
 
-## Environment Setup
+### Usage
 
 ```sh
-podman build . -t auto-attack  # build container
-podman run --rm -it -v .:/app auto-attack install  # install Python packages
+. .venv/bin/activate
+pip install -r requirements.txt
+python startrange.py -h
 ```
 
-## Usage
+### Development
 
-Range setup and traffic generation:
 ```sh
-podman run --rm -it -v .:/app auto-attack run python startrange.py -h
+. .venv/bin/activate
+pip install -r dev-requirements.txt
+ipython
 ```
 
-Packet study:
+The project metadata and dependencies are defined in pyproejct.toml.
+After changing it, run the following commands to regenerate requirement files
+and update virtualenv:
 ```sh
-podman run --rm -it -v .:/app auto-attack run scapy
+pip install pip-tools
+pip-compile -o requirements.txt pyproject.toml
+pip-compile --extra dev -o dev-requirements.txt pyproject.toml
+pip-sync dev-requirements.txt
 ```
+
+## Packet Study
+
+Docker or [Podman](https://podman.io/) is needed to provision external dependencies.
+
+```sh
+podman run --rm -v .:/app -w /app zeek/zeek:lts zeek local -r /app/traffic.pcap
+```
+

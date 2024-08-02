@@ -1,5 +1,6 @@
 data/
 autorange/
+*.egg-info/
 .venv/
 .vagrant/
 *.pcap
