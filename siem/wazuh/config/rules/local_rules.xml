@@ -1,0 +1,87 @@
+<!--
+  Wazuh local rules for C2 beaconing detection.
+  Designed for Zeek conn.log ingested via localfile with log_format=json
+  (see siem/README.md). JSON fields are referenced directly, e.g. id.resp_p.
+
+  Port scope mirrors range.yml attacker listeners:
+    MSF  meterpreter_reverse_tcp/http/https -> 7101/7102/7103
+    CS   beacon reverse_http/https          -> 7202/7203
+    CS   team_server                        -> 50050
+-->
+<group name="zeek,conn,c2,">
+
+  <!-- Parent: any Zeek conn.log JSON event -->
+  <rule id="100100" level="0">
+    <decoded_as>json</decoded_as>
+    <field name="id.resp_h">\.+</field>
+    <field name="id.orig_h">\.+</field>
+    <description>Zeek conn.log event from $(id.orig_h) to $(id.resp_h):$(id.resp_p).</description>
+  </rule>
+
+  <!-- Non-standard C2 listener ports (range.yml) -->
+  <rule id="100101" level="12">
+    <if_sid>100100</if_sid>
+    <field name="id.resp_p">^(7101|7102|7103|7202|7203)$</field>
+    <description>C2 channel on non-standard port $(id.resp_p) [T1571].</description>
+    <mitre>
+      <id>T1571</id>
+      <id>T1071</id>
+    </mitre>
+  </rule>
+
+  <!-- Cobalt Strike team server default port -->
+  <rule id="100102" level="14">
+    <if_sid>100100</if_sid>
+    <field name="id.resp_p">^50050$</field>
+    <description>Cobalt Strike team server on port 50050 [T1059/T1105 infra].</description>
+    <mitre>
+      <id>T1071</id>
+      <id>T1105</id>
+    </mitre>
+  </rule>
+
+  <!-- Encrypted C2 (ssl/https) on a non-standard port: T1573 + T1571 -->
+  <rule id="100103" level="12">
+    <if_sid>100100</if_sid>
+    <field name="service">^(ssl|https)$</field>
+    <field name="id.resp_p">^(?!443$|8443$).+</field>
+    <description>Encrypted C2 (TLS) on non-standard port $(id.resp_p) [T1573.002 + T1571].</description>
+    <mitre>
+      <id>T1573.002</id>
+      <id>T1571</id>
+    </mitre>
+  </rule>
+
+  <!-- Beaconing heuristic: frequent, repetitive connections -->
+  <rule id="100110" level="10" frequency="15" timeframe="120" ignore="60">
+    <if_matched_sid>100100</if_matched_sid>
+    <same_source_ip />
+    <same_destination_ip />
+    <description>Possible C2 beaconing: 15+ conns/120s from $(src_ip).</description>
+    <mitre>
+      <id>T1071</id>
+      <id>T1071.001</id>
+    </mitre>
+  </rule>
+
+  <rule id="100111" level="13" frequency="40" timeframe="300" ignore="60">
+    <if_matched_sid>100100</if_matched_sid>
+    <same_source_ip />
+    <same_destination_ip />
+    <description>High-confidence beaconing: 40+ conns/300s from $(src_ip) [T1071].</description>
+    <mitre>
+      <id>T1071</id>
+    </mitre>
+  </rule>
+
+  <!-- Large single response over a C2 channel: ingress tool transfer -->
+  <rule id="100120" level="11">
+    <if_sid>100101</if_sid>
+    <field name="resp_bytes">^\d{6,}$</field>
+    <description>Large transfer ($(resp_bytes) B) over C2 channel [T1105].</description>
+    <mitre>
+      <id>T1105</id>
+    </mitre>
+  </rule>
+
+</group>

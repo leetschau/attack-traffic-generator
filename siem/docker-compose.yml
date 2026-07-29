@@ -1,0 +1,66 @@
+services:
+  wazuh.manager:
+    image: wazuh/wazuh-manager:4.8.2
+    hostname: wazuh-manager
+    restart: unless-stopped
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    ports:
+      - "1514:1514/udp"   # agent events
+      - "1515:1515"       # agent enrollment
+      - "514:514/udp"     # remote syslog ingest (for ship_zeek_to_wazuh.py)
+      - "55000:55000"     # Wazuh API
+    volumes:
+      - wazuh_manager_etc:/var/ossec/etc
+      - wazuh_manager_logs:/var/ossec/logs
+      - wazuh_manager_data:/var/ossec/data
+      - ./wazuh/config/rules/local_rules.xml:/wazuh-config-mount/etc/rules/local_rules.xml:ro
+      - ../zeek_logs:/var/ossec/logs/zeek:ro
+
+  wazuh.indexer:
+    image: wazuh/wazuh-indexer:4.8.2
+    hostname: wazuh-indexer
+    restart: unless-stopped
+    environment:
+      - OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g
+      - bootstrap.memory_lock=true
+      - "DISCOVERY_TYPE=single-node"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    ports:
+      - "9200:9200"
+    volumes:
+      - wazuh_indexer_data:/var/lib/wazuh-indexer
+
+  wazuh.dashboard:
+    image: wazuh/wazuh-dashboard:4.8.2
+    hostname: wazuh-dashboard
+    restart: unless-stopped
+    ports:
+      - "5601:5601"
+    environment:
+      - INDEXER_URL=https://wazuh.indexer:9200
+      - WAZUH_API_URL=https://wazuh.manager
+      - DASHBOARD_USERNAME=kibanaserver
+      - FILEBEAT_SSL_VERIFICATION_MODE=none
+    depends_on:
+      - wazuh.indexer
+    volumes:
+      - wazuh_dashboard_data:/usr/share/wazuh-dashboard/data
+
+volumes:
+  wazuh_manager_etc:
+  wazuh_manager_logs:
+  wazuh_manager_data:
+  wazuh_indexer_data:
+  wazuh_dashboard_data:
